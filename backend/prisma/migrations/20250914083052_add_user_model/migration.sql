@@ -1,3 +1,4 @@
+-- Xenofy - By Yashas Yadav
 -- CreateTable
 CREATE TABLE "public"."users" (
     "id" TEXT NOT NULL,
