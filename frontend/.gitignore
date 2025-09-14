@@ -1,0 +1,56 @@
+# Environment Variables
+.env*
+!.env.example
+
+# Build output
+.next/
+out/
+
+# Dependencies
+node_modules/
+.pnpm-debug.log*
+
+# Testing
+coverage/
+
+# Logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Testing
+.jest/
+.coverage/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+
+# Build intermediates
+dist/
+
+# Vercel deployment files
+.vercel
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Generated types
+.auto_generated/

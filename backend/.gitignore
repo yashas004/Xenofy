@@ -1,0 +1,75 @@
+# Environment Variables
+.env
+.env.local
+.env.production
+.env.staging
+.env.development
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Generated Prisma client
+node_modules/.prisma/
+node_modules/@prisma/
+
+# Compiled Python files
+__pycache__/
+*.py[cod]
+
+# Build output
+dist/
+build/
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Runtime assets
+public/

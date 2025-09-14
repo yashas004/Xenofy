@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: xenofy-backend
+    env: node
+    region: singapore
+    plan: starter
+    buildCommand: cd backend && npm install && npx prisma generate && npx prisma migrate deploy && npx prisma db seed
+    startCommand: cd backend && npm start
+    rootDir: backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: postgresql://neondb_owner:npg_txGYhmV5Oq3M@ep-raspy-mountain-a1xkvle4-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+      - key: JWT_SECRET
+        value: "95fdf78d1b8e42a2d278db32856d632d26abd46908c4782f0e044ad6d5b29e91"
+      - key: APP_ENCRYPTION_KEY
+        value: "c9b377f8830ba974016a7e4cf05aeb918e4b02ba6d58b74ba69c8ba69329ee8f"
+      - key: REDIS_URL
+        value: "rediss://default:AZk2AAIncDE2ZjVkYjU1ZDgyMzM0MmE1YTFjNjBiOTJlNzM0ODI3NXAxMzkyMjI@electric-joey-39222.upstash.io:6379"
+      - key: SHOPIFY_API_KEY
+        value: "2a5c60022493206c3d7a2a34930f97c6"
+      - key: SHOPIFY_API_SECRET
+        value: "f04a308a3c27381f2680974a73947c63"
+      - key: SHOPIFY_APP_URL
+        value: "https://xenofy-backend.onrender.com"
+      - key: SHOPIFY_API_VERSION
+        value: "2023-10"
+      - key: FRONTEND_URL
+        value: "https://xenofy-git-main-yashas004s-projects.vercel.app"
+      - key: PORT
+        value: "10000"
+    healthCheckPath: /health
+    autoDeploy: true
+    branch: main
+
+# Removed PostgreSQL service - using external NeonDB now

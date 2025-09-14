@@ -1,0 +1,91 @@
+# Environment Variables
+.env
+.env.local
+.env.production
+.env.staging
+.env.development
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Environment directories
+.env.test
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+
+# Vite.js build output
+dist
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# IntelliJ
+.idea/
+*.iml
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Deployment scripts (can be re-generated locally)
+deploy.sh
+start-dev.sh

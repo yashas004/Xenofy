@@ -1,0 +1,198 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  tenantId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("users")
+}
+
+model Tenant {
+  id              String         @id @default(cuid())
+  name            String
+  domain          String         @unique
+  apiKey          String         @unique
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  users           User[]
+  customers       Customer[]
+  orders          Order[]
+  products        Product[]
+  storeInfo       StoreInfo?
+  abandonedCarts  AbandonedCart[]
+  storeEvents     StoreEvent[]
+
+  @@map("tenants")
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  tenantId  String
+  shopifyId String   @unique
+  email     String?
+  firstName String?
+  lastName  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orders    Order[]
+
+  @@unique([shopifyId, tenantId])
+  @@map("customers")
+}
+
+model Product {
+  id                String     @id @default(cuid())
+  tenantId          String
+  shopifyId         String     @unique
+  title             String
+  handle            String?
+  price             Float?
+  inventoryQuantity Int?
+  inventoryPolicy   String?
+  fulfillmentService String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  tenant            Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orderItems        OrderItem[]
+
+  @@unique([shopifyId, tenantId])
+  @@map("products")
+}
+
+model StoreInfo {
+  id               String @id @default(cuid())
+  tenantId         String @unique @map("store_info_tenant_id_key")
+  name             String?
+  domain           String?
+  myshopifyDomain  String?
+  planName         String?
+  shopOwner        String?
+  email            String?
+  currency         String?
+  country          String?
+  province         String?
+  city             String?
+  address1         String?
+  zip              String?
+  phone            String?
+  timezone         String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  tenant           Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId], map: "store_info_tenantid_unique")
+  @@map("store_info")
+}
+
+model AbandonedCart {
+  id                        String  @id @default(cuid())
+  tenantId                  String
+  checkoutId                String  @unique
+  totalPrice                Float?
+  subtotalPrice            Float?
+  currency                  String?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  tenant                    Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([checkoutId, tenantId])
+  @@map("abandoned_carts")
+}
+
+model StoreEvent {
+  id           String    @id @default(cuid())
+  tenantId     String
+  eventId      String    @unique
+  eventType    String?
+  verb         String?
+  description  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, tenantId])
+  @@map("store_events")
+}
+
+model Order {
+  id                String       @id @default(cuid())
+  tenantId          String
+  shopifyId         String       @unique
+  customerId        String?
+  totalPrice        Float
+  subtotalPrice     Float?
+  totalTax          Float?
+  totalDiscounts    Float?
+  financialStatus   String?
+  fulfillmentStatus String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  tenant            Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer          Customer?    @relation(fields: [customerId], references: [id])
+  orderItems        OrderItem[]
+  addresses         OrderAddress[]
+
+  @@unique([shopifyId, tenantId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  productId   String?
+  variantId   String?
+  title       String?
+  variantTitle String?
+  quantity    Int
+  price       Float
+  linePrice   Float?
+  sku         String?
+
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product? @relation(fields: [productId], references: [shopifyId], onDelete: SetNull)
+
+  @@unique([orderId, productId])
+  @@map("order_items")
+}
+
+model OrderAddress {
+  id          String  @id @default(cuid())
+  orderId     String
+  addressType String  // 'shipping', 'billing'
+  firstName   String?
+  lastName    String?
+  company     String?
+  address1    String?
+  address2    String?
+  city        String?
+  province    String?
+  country     String?
+  zip         String?
+  phone       String?
+
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([orderId, addressType])
+  @@map("order_addresses")
+}
