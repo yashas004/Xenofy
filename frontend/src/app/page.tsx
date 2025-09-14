@@ -110,9 +110,9 @@ export default function Home() {
 
       // Show realistic demo data for offline mode
       const fallbackData = {
-        customers: { total: 1234 },
-        orders: { total: 567, revenue: 345678 },
-        products: { total: 89 }
+        customers: { total: 5 },
+        orders: { total: 23, revenue: 156789 },
+        products: { total: 17 }
       };
 
       setDashboardData(fallbackData);
