@@ -1,3 +1,4 @@
+/* Xenofy - By Yashas Yadav */
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 

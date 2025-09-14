@@ -1,3 +1,4 @@
+/* Xenofy - By Yashas Yadav */
 // Use verifyToken instead of verifyApiKey
 const express = require('express');
 const { verifyToken } = require('./auth');
