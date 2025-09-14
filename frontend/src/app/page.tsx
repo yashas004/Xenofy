@@ -127,6 +127,16 @@ export default function Home() {
   };
 
   const handleAuth = async () => {
+    // Special demo case: skip authentication entirely
+    if (isLogin && email === 'demo@xenofy.com' && password === 'demo123') {
+      // Simulate successful login for demo
+      localStorage.setItem('xenofy-token', 'demo-token');
+      axios.defaults.headers.common['Authorization'] = 'demo-token';
+      setLoading(false);
+      await fetchDashboard();
+      return;
+    }
+
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://xenofy-backend.onrender.com';
 
     try {
