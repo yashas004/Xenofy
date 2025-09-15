@@ -1,3 +1,4 @@
+# Xenofy - By Yashas Yadav
 # Xenofy Frontend
 
 The frontend application for Xenofy, a multi-tenant Shopify analytics platform built with Next.js, React, and TypeScript.
