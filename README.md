@@ -10,35 +10,41 @@ Xenofy is a comprehensive Shopify data ingestion and analytics service designed 
 ## Architecture Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                            Xenofy Architecture                              │
-│                                                                             │
-│  ┌─────────────┐      ┌──────────────┐      ┌─────────────┐                 │
-│  │   Frontend  │      │   Backend     │      │  Database    │                 │
-│  │  (Next.js)  │◄─────┤ (Express.js)  │◄─────┤ (PostgreSQL) │                 │
-│  │             │      │               │      │              │                 │
-│  │ - React UI  │      │ - API Routes  │      │ - User       │                 │
-│  │ - Analytics │      │ - Shopify API │      │ - Tenant     │                 │
-│  │ - Dashboard │      │ - Auth & JWT  │      │ - Customer   │                 │
-│  └─────────────┘      └──────────────┘      │ - Order      │                 │
-│                                              │ - Product    │                 │
-│                                              └─────────────┘                 │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────────┐ │
-│  │                          External Integrations                           │ │
-│  │                                                                         │ │
-│  │  Shopify Store ◄─► Webhooks ◄─► Data Ingestion Service                 │ │
-│  │                                                                         │ │
-│  └─────────────────────────────────────────────────────────────────────────┘ │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────────┐ │
-│  │                          Deployment Layers                               │ │
-│  │                                                                         │ │
-│  │  Vercel (Frontend) ◄─► Render (Backend + DB) ◄─► GitHub Actions        │ │
-│  │                                                                         │ │
-│  └─────────────────────────────────────────────────────────────────────────┘ │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+                    ┌─────────────────┐
+                    │   Shopify Store │
+                    │                 │
+                    │ • Customers     │
+                    │ • Orders        │
+                    │ • Products      │
+                    └─────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────┐
+                    │ Webhook Events  │
+                    │ (Shopify API)   │
+                    └─────────────────┘
+                             │
+                             ▼
+┌─────────────────┐    ┌─────────────────┐     ┌─────────────────┐
+│    Frontend     │────│     Backend      │────│    Database     │
+│   (Next.js)     │    │   (Express.js)   │    │  (PostgreSQL)   │
+│                 │    │                  │    │                 │
+│ • React Dashboard│   │ • API Routes     │    │ • Users         │
+│ • Analytics UI  │    │ • JWT Auth       │    │ • Tenants       │
+│ • Charts        │    │ • Shopify API    │    │ • Customers     │
+│ • Real-time Data│    │ • Data Processing│    │ • Orders        │
+└─────────────────┘    └─────────────────┘     └─────────────────┘
+        │                     │                        │
+        └─────────────────────┴────────────────────────┘
+                                 │
+               ┌─────────────────┐    ┌─────────────────┐
+               │   Vercel        │    │    Render       │
+               │ (Frontend)      │    │ (Backend + DB)  │
+               └─────────────────┘    └─────────────────┘
+                        │                     │
+                        └─────────────────────┘
+                              GitHub Actions
+                              (CI/CD Pipeline)
 ```
 
 ## Features
@@ -119,11 +125,7 @@ xenofy/
    # Terminal 2: Frontend
    cd frontend && npm run dev
    ```
-
-6. **Access the application**
-   - Frontend: http://localhost:3000
-   - Backend: http://localhost:3001
-   - Health check: http://localhost:3001/health
+   
 
 ## Deploy to GitHub
 
@@ -259,14 +261,14 @@ PORT=3001
 NODE_ENV=development
 
 # CORS Configuration
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=https://xenofy-frontend.vercel.app
 ```
 
 ### Frontend (.env.local)
 
 ```bash
 # Backend API
-NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
+NEXT_PUBLIC_BACKEND_URL=https://xenofy-backend.onrender.com
 ```
 
 ### Production Environment Variables
@@ -551,7 +553,31 @@ NEXT_PUBLIC_BACKEND_URL=https://xenofy-backend.onrender.com
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License. See below for the full license text:
+
+```
+MIT License
+
+Copyright (c) 2025 Yashas Yadav
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
 
 ## Support
 
