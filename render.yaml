@@ -34,4 +34,4 @@ services:
     autoDeploy: true
     branch: main
 
-# Removed PostgreSQL service - using external NeonDB now
+# Xenofy - By Yashas Yadav
