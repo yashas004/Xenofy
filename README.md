@@ -7,6 +7,40 @@ Xenofy is a comprehensive Shopify data ingestion and analytics service designed 
 
 **Status**: Production Ready | **License**: MIT | **Node.js**: 18+ Required
 
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            Xenofy Architecture                              │
+│                                                                             │
+│  ┌─────────────┐      ┌──────────────┐      ┌─────────────┐                 │
+│  │   Frontend  │      │   Backend     │      │  Database    │                 │
+│  │  (Next.js)  │◄─────┤ (Express.js)  │◄─────┤ (PostgreSQL) │                 │
+│  │             │      │               │      │              │                 │
+│  │ - React UI  │      │ - API Routes  │      │ - User       │                 │
+│  │ - Analytics │      │ - Shopify API │      │ - Tenant     │                 │
+│  │ - Dashboard │      │ - Auth & JWT  │      │ - Customer   │                 │
+│  └─────────────┘      └──────────────┘      │ - Order      │                 │
+│                                              │ - Product    │                 │
+│                                              └─────────────┘                 │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────────┐ │
+│  │                          External Integrations                           │ │
+│  │                                                                         │ │
+│  │  Shopify Store ◄─► Webhooks ◄─► Data Ingestion Service                 │ │
+│  │                                                                         │ │
+│  └─────────────────────────────────────────────────────────────────────────┘ │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────────┐ │
+│  │                          Deployment Layers                               │ │
+│  │                                                                         │ │
+│  │  Vercel (Frontend) ◄─► Render (Backend + DB) ◄─► GitHub Actions        │ │
+│  │                                                                         │ │
+│  └─────────────────────────────────────────────────────────────────────────┘ │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
 ## Features
 
 - **Multi-tenant Architecture**: Secure data isolation using tenant-specific API keys
@@ -253,47 +287,221 @@ NEXT_PUBLIC_BACKEND_URL=https://xenofy-backend.onrender.com
 
 ## API Endpoints
 
-### Authentication
-```
-POST /auth/register
-- Registers new tenant with Shopify API key
-- Returns JWT token
+### Authentication Endpoints
 
-POST /auth/login
-- Authenticates tenant
-- Returns JWT token
+| Method | Endpoint | Description | Request Body | Response |
+|--------|----------|-------------|--------------|----------|
+| POST | `/auth/register` | Registers new tenant | `{ email, password, name, domain, apiKey }` | `{ token, user, tenant }` |
+| POST | `/auth/login` | Authenticates tenant | `{ email, password }` | `{ token, user }` |
+| GET | `/auth/me` | Returns current user info | - | `{ user, tenant }` |
+| POST | `/auth/logout` | Logs out user | - | `{ message: 'Logged out' }` |
 
-GET /auth/me
-- Returns current user and tenant information
+### Data Retrieval Endpoints
 
-POST /auth/logout
-- Logs out user (client-side)
-```
+| Method | Endpoint | Description | Headers | Response |
+|--------|----------|-------------|---------|----------|
+| GET | `/api/data/dashboard` | Aggregated dashboard data | `Authorization: Bearer <token>` | `{ customers, orders, products }` |
+| GET | `/api/data/customers/stats` | Customer statistics | `Authorization: Bearer <token>` | `{ totalCustomers, newCustomersThisMonth, customersByEmail }` |
+| GET | `/api/data/orders/stats` | Order statistics | `Authorization: Bearer <token>` | `{ totalOrders, totalRevenue, recentOrders, ordersByMonth }` |
+| GET | `/api/data/products/stats` | Product statistics | `Authorization: Bearer <token>` | `{ totalProducts, products, bestSellingProducts }` |
+| GET | `/api/data/customers/detailed` | Detailed customer data | `Authorization: Bearer <token>` | Customer list with relations |
+| GET | `/api/data/orders/detailed` | Detailed order data | `Authorization: Bearer <token>` | Order list with items |
+| GET | `/api/data/orders/filtered` | Orders with date filtering | `Authorization: Bearer <token>` | `{ ordersByDate, orders, totalOrders, totalRevenue }` |
+| GET | `/api/data/customers/top-spenders` | Top spending customers | `Authorization: Bearer <token>` | Top 5 customers by spend |
 
-### Data Retrieval
-```
-GET /api/data/dashboard
-- Requires: x-api-key header
-- Returns: Aggregated dashboard data for tenant
-```
+### Analytics Endpoints
 
-### Health Check
-```
-GET /health
-- Returns server status and health information
-```
+| Method | Endpoint | Description | Headers | Response |
+|--------|----------|-------------|---------|----------|
+| GET | `/api/data/analytics/insights` | Comprehensive analytics | `Authorization: Bearer <token>` | Business insights, revenue data |
+| GET | `/api/data/analytics/abandoned-carts` | Abandoned carts analysis | `Authorization: Bearer <token>` | Cart abandonment stats |
+| GET | `/api/data/analytics/events` | Store events log | `Authorization: Bearer <token>` | Recent events and types |
+| GET | `/api/data/analytics/inventory` | Inventory analysis | `Authorization: Bearer <token>` | Stock levels and value |
+| GET | `/api/data/analytics/fulfillment` | Order fulfillment status | `Authorization: Bearer <token>` | Status breakdown |
+| GET | `/api/data/analytics/customer-segments` | Customer segmentation | `Authorization: Bearer <token>` | Segment analysis |
+
+### Ingestion Endpoints
+
+| Method | Endpoint | Description | Headers | Response |
+|--------|----------|-------------|---------|----------|
+| POST | `/api/webhooks/shopify/customers/create` | Create customer webhook | Shop API key | Success confirmation |
+| POST | `/api/webhooks/shopify/customers/update` | Update customer webhook | Shop API key | Success confirmation |
+| POST | `/api/webhooks/shopify/orders/create` | Create order webhook | Shop API key | Success confirmation |
+| POST | `/api/webhooks/shopify/orders/paid` | Order paid webhook | Shop API key | Success confirmation |
+| POST | `/api/webhooks/shopify/products/create` | Create product webhook | Shop API key | Success confirmation |
+| POST | `/api/webhooks/shopify/products/update` | Update product webhook | Shop API key | Success confirmation |
+
+### Health Endpoints
+
+| Method | Endpoint | Description | Response |
+|--------|----------|-------------|----------|
+| GET | `/health` | Server health check | `{ status: 'OK', timestamp }` |
 
 ## Database Schema
 
-### Tenants
-- Secure API key-based tenant isolation
-- Encrypted data storage
-- Access control per tenant
+### Core Models
 
-### Shopify Data Tables
-- customers, orders, products
-- Real-time synchronization
-- Historical data retention
+#### User
+- `id`: String (Primary Key, CUID)
+- `email`: String (Unique)
+- `password`: String (Hashed)
+- `tenantId`: String (Foreign Key to Tenant)
+- `createdAt`, `updatedAt`: DateTime
+
+#### Tenant
+- `id`: String (Primary Key, CUID, Unique)
+- `name`: String
+- `domain`: String (Unique)
+- `apiKey`: String (Unique, Shopify API Key)
+- `createdAt`, `updatedAt`: DateTime
+- Relations: Users, Customers, Orders, Products, StoreInfo, AbandonedCarts, StoreEvents
+
+#### Customer (Mirrors Shopify Customer API)
+- `id`: String (Primary Key, CUID)
+- `tenantId`: String (Foreign Key to Tenant)
+- `shopifyId`: String (Unique within tenant)
+- `email`, `firstName`, `lastName`: String
+- `createdAt`, `updatedAt`: DateTime
+- Unique: (shopifyId, tenantId)
+- Relations: Orders
+
+#### Product (Mirrors Shopify Product API)
+- `id`: String (Primary Key, CUID)
+- `tenantId`: String (Foreign Key to Tenant)
+- `shopifyId`: String (Unique within tenant)
+- `title`: String
+- `handle`, `inventoryPolicy`: String
+- `price`: Float
+- `inventoryQuantity`: Int
+- `createdAt`, `updatedAt`: DateTime
+- Unique: (shopifyId, tenantId)
+- Relations: OrderItems
+
+#### Order (Mirrors Shopify Order API)
+- `id`: String (Primary Key, CUID)
+- `tenantId`: String (Foreign Key to Tenant)
+- `shopifyId`: String (Unique within tenant)
+- `customerId`: String (Foreign Key to Customer, Nullable)
+- `totalPrice`, `subtotalPrice`: Float
+- `totalTax`, `totalDiscounts`: Float
+- `financialStatus`, `fulfillmentStatus`: String
+- `createdAt`, `updatedAt`: DateTime
+- Unique: (shopifyId, tenantId)
+- Relations: Customer, OrderItems, OrderAddresses
+
+#### OrderItem (Order Line Items)
+- `id`: String (Primary Key, CUID)
+- `orderId`: String (Foreign Key to Order)
+- `productId`: String (Foreign Key to Product, Nullable)
+- `variantId`: String
+- `title`, `variantTitle`, `sku`: String
+- `quantity`: Int
+- `price`, `linePrice`: Float
+- Relations: Order, Product
+
+#### OrderAddress (Shipping/Billing Addresses)
+- `id`: String (Primary Key, CUID)
+- `orderId`: String (Foreign Key to Order)
+- `addressType`: String ('shipping', 'billing')
+- `firstName`, `lastName`, `company`: String
+- `address`, `city`, `province`, `country`, `zip`, `phone`: String
+- Unique: (orderId, addressType)
+- Relations: Order
+
+#### StoreInfo (Extended Store Metadata)
+- `id`: String (Primary Key, CUID)
+- `tenantId`: String (Unique, Foreign Key to Tenant)
+- `name`, `domain`, `shopOwner`, `email`: String
+- `planName`, `currency`, `country`, `province`, `city`: String
+- `createdAt`, `updatedAt`: DateTime
+- Relations: Tenant
+
+#### AbandonedCart (Cart Abandonment Tracking)
+- `id`: String (Primary Key, CUID)
+- `tenantId`: String (Foreign Key to Tenant)
+- `checkoutId`: String (Unique within tenant)
+- `totalPrice`: Float
+- `createdAt`, `updatedAt`: DateTime
+- Unique: (checkoutId, tenantId)
+- Relations: Tenant
+
+#### StoreEvent (Webhook Event Logging)
+- `id`: String (Primary Key, CUID)
+- `tenantId`: String (Foreign Key to Tenant)
+- `eventId`: String (Shopify Event ID, Unique within tenant)
+- `eventType`, `verb`, `description`: String
+- `createdAt`, `updatedAt`: DateTime
+- Unique: (eventId, tenantId)
+- Relations: Tenant
+
+### Relationships Summary
+- **Tenant** (1) → (N) **User**, **Customer**, **Order**, **Product**, **StoreInfo**, **AbandonedCart**, **StoreEvent**
+- **Customer** (1) → (N) **Order**
+- **Order** (1) → (N) **OrderItem**, **OrderAddress**
+- **Product** (1) → (N) **OrderItem**
+- **OrderItem** → (1) **Order**, (1) **Product** (nullable)
+- **OrderAddress** → (1) **Order**
+
+### Indexing Strategy
+- Primary Keys on `id` fields (CUID for collision resistance)
+- Unique constraints on Shopify IDs within tenant scope
+- Foreign key indexing for JOIN performance
+- Composite unique constraints for data integrity
+
+## Known Limitations and Assumptions
+
+### Current Limitations
+
+1. **Single Shopify Store per Tenant**
+   - Each tenant can connect only one Shopify store
+   - Assumption: One domain = One Shopify store = One tenant
+
+2. **PostgreSQL Dependency**
+   - Database optimized for PostgreSQL specific features
+   - Migration to other databases requires schema adjustments
+
+3. **Webhook Reliability**
+   - Assumes stable Shopify webhook delivery
+   - Occasional webhook failures require manual resyncing
+
+4. **Currency Support**
+   - Primarily designed for INR (Indian Rupee) display
+   - Other currencies may require additional formatting logic
+
+5. **API Rate Limits**
+   - No built-in rate limiting beyond Shopify's limits
+   - High-volume stores may encounter Shopify API throttling
+
+### 🔍 Key Assumptions
+
+1. **Data Completeness**
+   - Assumes foundational data (customers, orders, products) is available in Shopify
+   - Missing data requires manual intervention
+
+2. **Network Reliability**
+   - Assumes stable internet connectivity for webhook processing
+   - Offline scenarios require custom implementation
+
+3. **Security Model**
+   - API key-based tenant isolation is sufficient for initial rollout
+   - Additional authentication layers may be added later
+
+4. **Performance**
+   - Designed for moderate-sized Shopify stores (up to 50K monthly orders)
+   - Very large stores may require pagination optimizations
+
+5. **Migration Compatibility**
+   - Schema changes require backward-compatible migrations
+   - Breaking changes impact existing tenants
+
+### Future Enhancements
+
+- Multi-store support per tenant
+- Real-time data streaming
+- Advanced caching layer
+- Custom webhook retry mechanisms
+- Multi-currency support
+- Horizontal scaling architecture
 
 ## Security Features
 
